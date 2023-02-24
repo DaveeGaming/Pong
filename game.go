@@ -33,12 +33,16 @@ func (g *Game) Init() {
 		paddleRect:  rl.NewRectangle(offset, float32(halfh)-paddleHeight/2, paddleWidth, paddleHeight),
 		paddleSpeed: paddleSpeed,
 		points:      0,
+		keyUp:       rl.KeyW,
+		keyDown:     rl.KeyS,
 	}
 
 	g.p2 = Player{
 		paddleRect:  rl.NewRectangle(float32(g.config.WindowWidth)-offset-paddleWidth, float32(halfh)-paddleHeight/2, paddleWidth, paddleHeight),
 		paddleSpeed: paddleSpeed,
 		points:      0,
+		keyUp:       rl.KeyUp,
+		keyDown:     rl.KeyDown,
 	}
 
 	g.ball = DefaultBall(g, 1)
@@ -84,13 +88,6 @@ func (g *Game) Update() {
 		g.ball.dy += (g.ball.rect.Y + g.ball.rect.Height/2 - g.p2.paddleRect.Y + g.p2.paddleRect.Height/2)
 	}
 
-	// Update ball speed
-	g.ball.dx *= g.ball.speedupMultiplier
-	g.ball.dy *= g.ball.speedupMultiplier
-
-	g.ball.rect.X += g.ball.dx * dt
-	g.ball.rect.Y += g.ball.dy * dt
-
 	// Ball collision
 	if !InBounds(g, g.ball.rect) {
 		g.ball.dy *= -1
@@ -104,36 +101,20 @@ func (g *Game) Update() {
 		g.p1.points += 1
 		g.ball = DefaultBall(g, 1)
 	}
+
+	// Update ball speed
+	g.ball.dx *= g.ball.speedupMultiplier
+	g.ball.dy *= g.ball.speedupMultiplier
+
+	g.ball.rect.X += g.ball.dx * dt
+	g.ball.rect.Y += g.ball.dy * dt
 }
 
 func (g *Game) HandleInput() {
 	dt := rl.GetFrameTime()
 
-	// p1 input
-	if rl.IsKeyDown(rl.KeyW) {
-		g.p1.paddleRect.Y = Clamp(g.p1.paddleRect.Y-g.p1.paddleSpeed*dt, 0, float32(g.config.WindowHeight)-g.p1.paddleRect.Height)
-	} else if rl.IsKeyDown(rl.KeyS) {
-		g.p1.paddleRect.Y = Clamp(g.p1.paddleRect.Y+g.p1.paddleSpeed*dt, 0, float32(g.config.WindowHeight)-g.p1.paddleRect.Height)
-	}
-
-	// p2 input
-	if rl.IsKeyDown(rl.KeyUp) {
-		g.p2.paddleRect.Y = Clamp(g.p2.paddleRect.Y-g.p2.paddleSpeed*dt, 0, float32(g.config.WindowHeight)-g.p2.paddleRect.Height)
-	} else if rl.IsKeyDown(rl.KeyDown) {
-		g.p2.paddleRect.Y = Clamp(g.p2.paddleRect.Y+g.p2.paddleSpeed*dt, 0, float32(g.config.WindowHeight)-g.p2.paddleRect.Height)
-	}
-}
-
-func DefaultBall(g *Game, side float32) Ball {
-	var ballSize float32 = 15
-
-	return Ball{
-		rect: rl.NewRectangle(float32(g.config.WindowWidth)/2-ballSize/2, float32(g.config.WindowHeight/2)-ballSize/2, ballSize, ballSize),
-
-		dx:                150 * side,
-		dy:                0,
-		speedupMultiplier: 1.001,
-	}
+	g.p1.HandleInput(g, dt)
+	g.p2.HandleInput(g, dt)
 }
 
 func InBounds(g *Game, rec rl.Rectangle) bool {
