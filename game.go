@@ -26,8 +26,8 @@ func (g *Game) Init() {
 
 	var offset float32 = 10
 	var paddleWidth float32 = 10
-	var paddleHeight float32 = 100
-	var paddleSpeed float32 = 200
+	var paddleHeight float32 = 130
+	var paddleSpeed float32 = 250
 
 	g.p1 = Player{
 		paddleRect:  rl.NewRectangle(offset, float32(halfh)-paddleHeight/2, paddleWidth, paddleHeight),
@@ -71,7 +71,7 @@ func (g *Game) Draw() {
 
 	var offset int32 = 30
 
-	rl.DrawText(strconv.Itoa(int(g.p1.points)), screenMiddle-offset-15, offset, 25, rl.White)
+	rl.DrawText(strconv.Itoa(int(g.p1.points)), screenMiddle-offset-13, offset, 25, rl.White)
 	rl.DrawText(strconv.Itoa(int(g.p2.points)), screenMiddle+offset, offset, 25, rl.White)
 
 	rl.EndDrawing()

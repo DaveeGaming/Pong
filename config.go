@@ -10,8 +10,8 @@ type Config struct {
 
 func CreateConfig() Config {
 	return Config{
-		WindowWidth:  800,
-		WindowHeight: 450,
+		WindowWidth:  1000,
+		WindowHeight: 500,
 		WindowTitle:  "Pong",
 
 		TargetFPS: 60,
