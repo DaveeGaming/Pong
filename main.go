@@ -2,7 +2,7 @@ package main
 
 import rl "github.com/gen2brain/raylib-go/raylib"
 
-var Pong Game = Game{}
+var Pong Game = Game{playing: true}
 
 func main() {
 	Pong.Init()

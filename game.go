@@ -7,14 +7,11 @@ import (
 )
 
 type Game struct {
-	config Config
-	p1     Player
-	p2     Player
-	ball   Ball
-}
-
-type Object interface {
-	rl.Rectangle
+	config  Config
+	p1      Player
+	p2      Player
+	ball    Ball
+	playing bool
 }
 
 func (g *Game) Init() {
@@ -51,6 +48,12 @@ func (g *Game) Init() {
 func (g *Game) Draw() {
 	rl.BeginDrawing()
 
+	if !g.playing {
+		g.GameOver()
+		rl.EndDrawing()
+		return
+	}
+
 	rl.ClearBackground(rl.Black)
 
 	//Draw Players
@@ -78,7 +81,9 @@ func (g *Game) Draw() {
 }
 
 func (g *Game) Update() {
-
+	if !g.playing {
+		return
+	}
 	dt := rl.GetFrameTime()
 
 	if Colliding(&g.ball, &g.p1) {
@@ -105,14 +110,33 @@ func (g *Game) Update() {
 		g.ball = DefaultBall(g, 1)
 	}
 
+	if g.p1.points == 5 || g.p2.points == 5 {
+		g.playing = false
+	}
+
 	// Update ball speed
 	g.ball.rect.X += g.ball.dx * dt
 	g.ball.rect.Y += g.ball.dy * dt
 }
 
-func (g *Game) HandleInput() {
-	dt := rl.GetFrameTime()
+func (g *Game) GameOver() {
+	var winner string
+	if g.p1.points > g.p2.points {
+		winner = "Player 1 won the game"
+	} else {
+		winner = "Player 2 won the game"
+	}
+	var textSize rl.Vector2 = rl.MeasureTextEx(rl.GetFontDefault(), winner, 50, 5)
 
+	rl.DrawText(winner, g.config.WindowWidth/2-int32(textSize.X)/2, g.config.WindowHeight/2-int32(textSize.Y), 50, rl.White)
+}
+
+func (g *Game) HandleInput() {
+	if !g.playing {
+		return
+	}
+
+	dt := rl.GetFrameTime()
 	g.p1.HandleInput(g, dt)
 	g.p2.HandleInput(g, dt)
 }
