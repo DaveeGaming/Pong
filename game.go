@@ -7,11 +7,15 @@ import (
 )
 
 type Game struct {
-	config  Config
-	p1      Player
-	p2      Player
-	ball    Ball
-	playing bool
+	config   Config
+	p1       Player
+	p2       Player
+	ball     Ball
+	playing  bool
+	powerups []PowerUp
+
+	powerupCooldown     float32
+	powerupBaseCooldown float32
 }
 
 func (g *Game) Init() {
@@ -42,7 +46,10 @@ func (g *Game) Init() {
 		keyDown:     rl.KeyDown,
 	}
 
+	g.powerupBaseCooldown = 10
+	g.powerupCooldown = g.powerupBaseCooldown
 	g.ball = DefaultBall(g, 1)
+	g.playing = true
 }
 
 func (g *Game) Draw() {
@@ -55,6 +62,10 @@ func (g *Game) Draw() {
 	}
 
 	rl.ClearBackground(rl.Black)
+
+	for i := 0; i < len(g.powerups); i++ {
+		g.powerups[i].Draw()
+	}
 
 	//Draw Players
 	g.p1.Draw()
@@ -85,6 +96,19 @@ func (g *Game) Update() {
 		return
 	}
 	dt := rl.GetFrameTime()
+
+	if g.powerupCooldown < 0 && len(g.powerups) == 0 {
+		RandomPowerUp(g, poverupTypes)
+		g.powerupCooldown = g.powerupBaseCooldown
+	} else {
+		g.powerupCooldown -= dt
+	}
+
+	for i := 0; i < len(g.powerups); i++ {
+		curr := &g.powerups[i]
+		curr.Colliding(g, g.ball)
+		curr.Update(g, dt)
+	}
 
 	if Colliding(&g.ball, &g.p1) {
 		g.ball.dx *= -1
@@ -143,4 +167,11 @@ func (g *Game) HandleInput() {
 
 func InBounds(g *Game, rec rl.Rectangle) bool {
 	return rec.Y > 0 && (rec.Y+rec.Height) < float32(g.config.WindowHeight)
+}
+
+func RandomPowerUp(g *Game, p []PowerUp) {
+	powerup := p[rl.GetRandomValue(0, int32(len(p))-1)]
+	powerup.rect.X = float32(rl.GetRandomValue(50, g.config.WindowWidth-50))
+	powerup.rect.Y = float32(rl.GetRandomValue(50, g.config.WindowHeight-50))
+	g.powerups = append(g.powerups, powerup)
 }
