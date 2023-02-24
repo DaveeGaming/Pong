@@ -78,14 +78,17 @@ func (g *Game) Draw() {
 }
 
 func (g *Game) Update() {
+
 	dt := rl.GetFrameTime()
 
 	if Colliding(&g.ball, &g.p1) {
 		g.ball.dx *= -1
 		g.ball.dy += (g.ball.rect.Y + g.ball.rect.Height/2 - g.p1.paddleRect.Y + g.p1.paddleRect.Height/2)
+		g.ball.dx += g.ball.speedupAmount
 	} else if Colliding(&g.ball, &g.p2) {
 		g.ball.dx *= -1
 		g.ball.dy += (g.ball.rect.Y + g.ball.rect.Height/2 - g.p2.paddleRect.Y + g.p2.paddleRect.Height/2)
+		g.ball.dx -= g.ball.speedupAmount
 	}
 
 	// Ball collision
@@ -103,9 +106,6 @@ func (g *Game) Update() {
 	}
 
 	// Update ball speed
-	g.ball.dx *= g.ball.speedupMultiplier
-	g.ball.dy *= g.ball.speedupMultiplier
-
 	g.ball.rect.X += g.ball.dx * dt
 	g.ball.rect.Y += g.ball.dy * dt
 }
