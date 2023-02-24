@@ -120,13 +120,3 @@ func (g *Game) HandleInput() {
 func InBounds(g *Game, rec rl.Rectangle) bool {
 	return rec.Y > 0 && (rec.Y+rec.Height) < float32(g.config.WindowHeight)
 }
-
-func Clamp(num, min, max float32) float32 {
-	if num < min {
-		return min
-	} else if num > max {
-		return max
-	} else {
-		return num
-	}
-}
